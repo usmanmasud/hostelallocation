@@ -1,0 +1,117 @@
+<%- include('../partials/head') %>
+<% const s = snapshot; %>
+<div class="page-header">
+  <div>
+    <h1>Hostel dashboard</h1>
+    <p><span class="live-dot" aria-hidden="true"></span>Live occupancy for the <%= settings.academicSession %> session · updated <span data-stat-updated><%= formatDateTime(s.generatedAt) %></span></p>
+  </div>
+  <div class="actions">
+    <a class="btn secondary" href="/admin/rooms">Manage rooms</a>
+    <a class="btn" href="/admin/allocations">Run allocation</a>
+  </div>
+</div>
+
+<div data-live-stats="/admin/occupancy.json" class="stack">
+  <div class="grid grid-4">
+    <section class="card stat">
+      <span class="stat-label">Rooms full</span>
+      <span class="stat-value"><span data-stat="fullRooms"><%= s.fullRooms %></span><span class="muted" style="font-size:1rem"> / <span data-stat="rooms"><%= s.rooms %></span></span></span>
+      <span class="stat-note"><span data-stat="roomsWithSpace"><%= s.roomsWithSpace %></span> room(s) still have space</span>
+    </section>
+    <section class="card stat">
+      <span class="stat-label">Beds occupied</span>
+      <span class="stat-value"><span data-stat="occupiedBeds"><%= s.occupiedBeds %></span><span class="muted" style="font-size:1rem"> / <span data-stat="beds"><%= s.beds %></span></span></span>
+      <div class="meter"><span data-stat-meter="occupancyRate" style="width: <%= s.occupancyRate %>%"></span></div>
+      <span class="stat-note"><span data-stat="occupancyRateLabel"><%= s.occupancyRate %>%</span> occupancy · <span data-stat="freeBeds"><%= s.freeBeds %></span> free</span>
+    </section>
+    <section class="card stat">
+      <span class="stat-label">Waiting for a room</span>
+      <span class="stat-value" data-stat="awaitingAllocation"><%= s.awaitingAllocation %></span>
+      <span class="stat-note">Preferences submitted, not yet matched</span>
+    </section>
+    <section class="card stat <%= s.escalatedComplaints > 0 ? 'accent-danger' : '' %>">
+      <span class="stat-label">Open complaints</span>
+      <span class="stat-value" data-stat="openComplaints"><%= s.openComplaints %></span>
+      <span class="stat-note"><span data-stat="escalatedComplaints"><%= s.escalatedComplaints %></span> escalated to the Dean</span>
+    </section>
+  </div>
+
+  <section class="card flush">
+    <div class="card-header">
+      <h2>Occupancy by hostel</h2>
+      <span class="muted small">Average compatibility: <strong data-stat="averageCompatibility"><%= s.averageCompatibility == null ? '—' : s.averageCompatibility + '%' %></strong></span>
+    </div>
+    <% if (s.hostels.length === 0) { %>
+      <div class="empty"><h3>No rooms yet</h3><p>Add hostel rooms to start allocating students.</p><a class="btn" href="/admin/rooms">Add rooms</a></div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Hostel</th><th>Gender</th><th class="num">Beds occupied</th><th class="num">Free beds</th><th class="num">Rooms full</th><th style="width:28%">Occupancy</th></tr></thead>
+          <tbody>
+            <% for (const h of s.hostels) { %>
+              <tr data-hostel="<%= h.hostel_name %>">
+                <td><a href="/admin/rooms?hostel=<%= encodeURIComponent(h.hostel_name) %>"><%= h.hostel_name %></a></td>
+                <td><%= labelFor(GENDERS, h.gender) %></td>
+                <td class="num" data-field="occupied"><%= h.occupied_beds %> / <%= h.beds %></td>
+                <td class="num" data-field="free"><%= h.freeBeds %></td>
+                <td class="num" data-field="full"><%= h.full_rooms %> / <%= h.rooms %></td>
+                <td>
+                  <div class="actions" style="flex-wrap:nowrap">
+                    <div class="meter" style="flex:1"><span data-field="meter" style="width: <%= h.occupancyRate %>%"></span></div>
+                    <span class="small nowrap" data-field="rate"><%= h.occupancyRate %>%</span>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</div>
+
+<div class="grid grid-2" style="margin-top:1.25rem">
+  <section class="card flush">
+    <div class="card-header"><h2>Recent allocations</h2><a class="small" href="/admin/allocations">View all</a></div>
+    <% if (recentAllocations.length === 0) { %>
+      <div class="empty"><p>No allocations yet.</p></div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Room</th><th class="num">Score</th></tr></thead>
+          <tbody>
+            <% for (const a of recentAllocations) { %>
+              <tr>
+                <td><%= a.name %><span class="sub"><%= a.matric_number %> · <%= timeAgo(a.allocated_at) %></span></td>
+                <td class="nowrap"><%= a.hostel_name %> <%= a.room_number %></td>
+                <td class="num"><span class="badge <%= scoreTone(a.compatibility_score) %>"><%= score(a.compatibility_score) %></span></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <div class="stack">
+    <section class="card">
+      <div class="card-header"><h2>Payments</h2><a class="small" href="/admin/payments">Manage</a></div>
+      <dl class="details">
+        <% for (const status of PAYMENT_STATUSES) { %>
+          <dt><span class="badge <%= badgeTone(status.value) %>"><%= status.label %></span></dt>
+          <dd><%= payments[status.value].count %> student(s) · <%= money(payments[status.value].amount, settings.currency) %></dd>
+        <% } %>
+      </dl>
+    </section>
+    <section class="card">
+      <div class="card-header"><h2>Complaints</h2><a class="small" href="/admin/complaints">Review</a></div>
+      <dl class="details">
+        <% for (const status of COMPLAINT_STATUSES) { %>
+          <dt><span class="badge <%= badgeTone(status.value) %>"><%= status.label %></span></dt>
+          <dd><%= complaints[status.value] %></dd>
+        <% } %>
+      </dl>
+    </section>
+  </div>
+</div>
+<%- include('../partials/foot') %>

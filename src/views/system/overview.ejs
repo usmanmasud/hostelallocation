@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>System overview</h1>
+    <p>User accounts, configuration and complaint escalation for the <%= settings.academicSession %> session.</p>
+  </div>
+  <a class="btn" href="/system/users/new">New staff account</a>
+</div>
+
+<div class="grid grid-4">
+  <a class="card stat" href="/system/users?role=student" style="color:inherit;text-decoration:none">
+    <span class="stat-label">Students</span><span class="stat-value"><%= counts.student || 0 %></span>
+  </a>
+  <a class="card stat" href="/system/users?role=hostel_admin" style="color:inherit;text-decoration:none">
+    <span class="stat-label">Hostel administrators</span><span class="stat-value"><%= counts.hostel_admin || 0 %></span>
+  </a>
+  <a class="card stat" href="/system/users?role=system_admin" style="color:inherit;text-decoration:none">
+    <span class="stat-label">System administrators</span><span class="stat-value"><%= counts.system_admin || 0 %></span>
+  </a>
+  <section class="card stat <%= complaintCounts.escalated > 0 ? 'accent-danger' : '' %>">
+    <span class="stat-label">Escalated complaints</span><span class="stat-value"><%= complaintCounts.escalated %></span>
+  </section>
+</div>
+
+<div class="grid grid-2" style="margin-top:1.25rem">
+  <section class="card">
+    <div class="card-header"><h2>Escalation settings</h2><a class="small" href="/system/settings">Edit</a></div>
+    <dl class="details">
+      <dt>Time limit</dt><dd><%= settings.escalationDays %> day(s) unresolved</dd>
+      <dt>Escalates to</dt><dd><%= settings.deanName %></dd>
+      <dt>Dean email</dt><dd><%= settings.deanEmail %></dd>
+      <dt>Allocation mode</dt><dd><%= settings.allocationMode === 'instant' ? 'Instant' : 'Batch' %></dd>
+      <dt>Hostel fee</dt><dd><%= money(settings.hostelFee, settings.currency) %></dd>
+    </dl>
+    <form method="post" action="/system/escalation/run" style="margin-top:1rem">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn secondary">Run escalation check now</button>
+    </form>
+    <p class="muted small" style="margin:.5rem 0 0">The check also runs automatically in the background.</p>
+  </section>
+  <section class="card flush">
+    <div class="card-header"><h2>Recent escalation emails</h2><a class="small" href="/system/outbox">View all</a></div>
+    <% if (recentEmails.length === 0) { %>
+      <div class="empty"><p>No complaints have been escalated yet.</p></div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Subject</th><th>Delivery</th></tr></thead>
+          <tbody>
+            <% for (const e of recentEmails) { %>
+              <tr><td><%= e.subject %><span class="sub"><%= formatDateTime(e.created_at) %></span></td><td><span class="badge <%= badgeTone(e.delivery_status) %>"><%= e.delivery_status %></span></td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</div>
+<%- include('../partials/foot') %>

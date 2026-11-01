@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <div class="breadcrumb"><a href="/system/users">User accounts</a> / <%= user.name %></div>
+    <h1><%= user.name %></h1>
+    <p><%= roleLabel(user.role) %> · <span class="badge <%= user.is_active ? 'success' : 'danger' %>"><%= user.is_active ? 'Active' : 'Deactivated' %></span></p>
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="stack">
+    <form method="post" action="/system/users/<%= user.id %>" class="card" novalidate>
+      <h2>Account details</h2>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="stack">
+        <div class="field <%= errors.name ? 'invalid' : '' %>">
+          <label for="name">Full name</label>
+          <input type="text" id="name" name="name" value="<%= values.name %>" required>
+          <%- include('../partials/field-error', { name: 'name' }) %>
+        </div>
+        <div class="field <%= errors.email ? 'invalid' : '' %>">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" value="<%= values.email %>" required>
+          <%- include('../partials/field-error', { name: 'email' }) %>
+        </div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn">Save details</button></div>
+    </form>
+    <% if (student) { %>
+      <section class="card">
+        <h2>Student profile</h2>
+        <dl class="details">
+          <dt>Matric number</dt><dd><%= student.matric_number %></dd>
+          <dt>Course</dt><dd><%= student.course %></dd>
+          <dt>Level</dt><dd><%= student.level %></dd>
+          <dt>Gender</dt><dd><%= labelFor(GENDERS, student.gender) %></dd>
+          <dt>Phone</dt><dd><%= student.phone || '—' %></dd>
+        </dl>
+      </section>
+    <% } %>
+  </div>
+  <div class="stack">
+    <section class="card">
+      <h2>Access</h2>
+      <dl class="details" style="margin-bottom:1rem">
+        <dt>Created</dt><dd><%= formatDateTime(user.created_at) %></dd>
+        <dt>Last sign-in</dt><dd><%= user.last_login_at ? formatDateTime(user.last_login_at) : 'Never' %></dd>
+      </dl>
+      <% if (user.id !== currentUser.id) { %>
+        <form method="post" action="/system/users/<%= user.id %>/status" data-confirm="<%= user.is_active ? 'Deactivate this account? The user will be signed out immediately.' : 'Reactivate this account?' %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="active" value="<%= user.is_active ? '0' : '1' %>">
+          <button type="submit" class="btn <%= user.is_active ? 'danger' : '' %>"><%= user.is_active ? 'Deactivate account' : 'Activate account' %></button>
+        </form>
+      <% } else { %>
+        <p class="muted small">This is your own account. Use <a href="/account">My account</a> to change your password.</p>
+      <% } %>
+    </section>
+    <% if (user.id !== currentUser.id) { %>
+      <section class="card">
+        <h2>Reset password</h2>
+        <p class="muted small">Generates a new temporary password and shows it to you once.</p>
+        <form method="post" action="/system/users/<%= user.id %>/reset-password" data-confirm="Reset this user's password? Their current password will stop working.">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn secondary">Reset password</button>
+        </form>
+      </section>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/foot') %>

@@ -1,0 +1,8 @@
+<%- include('../partials/head') %>
+<div class="error-page">
+  <div class="code"><%= status %></div>
+  <h1><%= status === 404 ? 'Page not found' : status === 403 ? 'Access denied' : 'Something went wrong' %></h1>
+  <p class="muted"><%= message %></p>
+  <a class="btn" href="/">Go to your dashboard</a>
+</div>
+<%- include('../partials/foot') %>

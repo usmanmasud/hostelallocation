@@ -1,0 +1,53 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Room preferences</h1>
+    <p>Every student answers the same questions, so any two students can be compared fairly.</p>
+  </div>
+</div>
+
+<% if (locked) { %>
+  <div class="alert info">Your preferences are locked because they were used to choose your roommates. <a href="/student/allocation">View your allocation →</a></div>
+<% } %>
+
+<form method="post" action="/student/preferences" class="card" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <div class="question">
+    <div class="field">
+      <span class="field-label"><strong>Course of study</strong></span>
+      <span><%= student.course %></span>
+      <span class="hint">Taken from your student profile and compared with other students as one of the criteria.</span>
+    </div>
+  </div>
+
+  <% for (const q of questions) { %>
+    <fieldset class="question field <%= errors[q.key] ? 'invalid' : '' %>">
+      <legend><%= q.question %></legend>
+      <div class="choice-group">
+        <% for (const option of q.options) { %>
+          <label class="choice">
+            <input type="radio" name="<%= q.key %>" value="<%= option.value %>" <%= values[q.key] === option.value ? 'checked' : '' %> <%= locked ? 'disabled' : '' %> required>
+            <span><%= option.label %></span>
+          </label>
+        <% } %>
+      </div>
+      <%- include('../partials/field-error', { name: q.key }) %>
+    </fieldset>
+  <% } %>
+
+  <div class="question field <%= errors.otherNotes ? 'invalid' : '' %>">
+    <label for="otherNotes">Anything else the hostel office should know? <span class="muted">(optional)</span></label>
+    <textarea id="otherNotes" name="otherNotes" maxlength="500" <%= locked ? 'disabled' : '' %>><%= values.otherNotes || '' %></textarea>
+    <span class="hint">For example, health considerations. This note is not used in the compatibility score.</span>
+    <%- include('../partials/field-error', { name: 'otherNotes' }) %>
+  </div>
+
+  <% if (!locked) { %>
+    <div class="form-actions">
+      <a class="btn secondary" href="/student">Cancel</a>
+      <button type="submit" class="btn"><%= submitted ? 'Update preferences' : 'Submit preferences' %></button>
+    </div>
+  <% } %>
+</form>
+<%- include('../partials/foot') %>

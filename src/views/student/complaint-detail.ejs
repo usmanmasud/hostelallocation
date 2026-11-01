@@ -1,0 +1,22 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <div class="breadcrumb"><a href="/student/complaints">Complaints</a> / #<%= complaint.id %></div>
+    <h1><%= complaint.title %></h1>
+    <p><%= labelFor(COMPLAINT_CATEGORIES, complaint.category) %> · <%= complaint.hostel_name ? `${complaint.hostel_name}, Room ${complaint.room_number}` : 'No room recorded' %></p>
+  </div>
+  <span class="badge <%= badgeTone(complaint.status) %>" style="font-size:.9rem"><%= labelFor(COMPLAINT_STATUSES, complaint.status) %></span>
+</div>
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Description</h2>
+    <p style="white-space:pre-line"><%= complaint.description %></p>
+    <h2>Response from the hostel office</h2>
+    <p class="<%= complaint.admin_response ? '' : 'muted' %>" style="white-space:pre-line"><%= complaint.admin_response || 'No response yet.' %></p>
+  </section>
+  <section class="card">
+    <h2>Progress</h2>
+    <%- include('../partials/complaint-timeline') %>
+  </section>
+</div>
+<%- include('../partials/foot') %>

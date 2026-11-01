@@ -1,0 +1,60 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Students</h1>
+    <p>Every registered student with their preference, allocation and payment status in one view.</p>
+  </div>
+</div>
+<section class="card flush">
+  <div class="card-header">
+    <form method="get" action="/admin/students" class="filters" style="margin:0">
+      <div class="field">
+        <label for="search">Search</label>
+        <input type="search" id="search" name="search" value="<%= filter.search %>" placeholder="Name, matric no. or course">
+      </div>
+      <div class="field">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender">
+          <option value="">All</option>
+          <% for (const g of genders) { %><option value="<%= g.value %>" <%= filter.gender === g.value ? 'selected' : '' %>><%= g.label %></option><% } %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="allocation">Allocation</label>
+        <select id="allocation" name="allocation">
+          <option value="">All</option>
+          <option value="allocated" <%= filter.allocation === 'allocated' ? 'selected' : '' %>>Allocated</option>
+          <option value="waiting" <%= filter.allocation === 'waiting' ? 'selected' : '' %>>Waiting for a room</option>
+          <option value="no_preferences" <%= filter.allocation === 'no_preferences' ? 'selected' : '' %>>No preferences yet</option>
+        </select>
+      </div>
+      <button type="submit" class="btn secondary">Filter</button>
+    </form>
+  </div>
+  <% if (students.length === 0) { %>
+    <div class="empty"><h3>No students found</h3></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>Course</th><th>Gender</th><th>Room</th><th class="num">Score</th><th>Payment</th></tr></thead>
+        <tbody>
+          <% for (const s of students) { %>
+            <tr>
+              <td><%= s.name %><span class="sub"><%= s.matric_number %><%= s.is_active ? '' : ' · deactivated' %></span></td>
+              <td><%= s.course %><span class="sub"><%= s.level %> Level</span></td>
+              <td><%= labelFor(GENDERS, s.gender) %></td>
+              <td class="nowrap">
+                <% if (s.allocation_id) { %><%= s.hostel_name %> <%= s.room_number %>
+                <% } else if (s.has_preferences) { %><span class="badge warning">Waiting</span>
+                <% } else { %><span class="badge">No preferences</span><% } %>
+              </td>
+              <td class="num"><%= s.allocation_id ? score(s.compatibility_score) : '—' %></td>
+              <td><a href="/admin/payments/<%= s.id %>"><span class="badge <%= badgeTone(s.payment_status) %>"><%= labelFor(PAYMENT_STATUSES, s.payment_status) %></span></a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

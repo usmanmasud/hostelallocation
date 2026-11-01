@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <div class="breadcrumb"><a href="/admin/complaints">Complaints</a> / #<%= complaint.id %></div>
+    <h1><%= complaint.title %></h1>
+    <p><%= labelFor(COMPLAINT_CATEGORIES, complaint.category) %> · reported by <%= complaint.student_name %> (<%= complaint.matric_number %>) · <%= complaint.hostel_name ? `${complaint.hostel_name}, Room ${complaint.room_number}` : 'No room recorded' %></p>
+  </div>
+  <span class="badge <%= badgeTone(complaint.status) %>" style="font-size:.9rem"><%= labelFor(COMPLAINT_STATUSES, complaint.status) %></span>
+</div>
+
+<% if (complaint.escalation_level > 0) { %>
+  <div class="alert error">This complaint was escalated to <strong><%= settings.deanName %></strong> on <%= formatDateTime(complaint.escalated_at) %> because it was unresolved after <%= settings.escalationDays %> day(s). Please follow up and record the outcome.</div>
+<% } %>
+
+<div class="grid grid-2">
+  <div class="stack">
+    <section class="card">
+      <h2>Description</h2>
+      <p style="white-space:pre-line"><%= complaint.description %></p>
+      <dl class="details">
+        <dt>Student email</dt><dd><%= complaint.student_email %></dd>
+        <dt>Last updated</dt><dd><%= formatDateTime(complaint.updated_at) %></dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h2>Progress</h2>
+      <%- include('../partials/complaint-timeline') %>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Update complaint</h2>
+    <form method="post" action="/admin/complaints/<%= complaint.id %>" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="stack">
+        <fieldset class="field <%= errors.status ? 'invalid' : '' %>">
+          <legend>Status</legend>
+          <div class="choice-group" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+            <% for (const s of statuses) { %>
+              <label class="choice">
+                <input type="radio" name="status" value="<%= s.value %>" <%= values.status === s.value ? 'checked' : '' %>>
+                <span><%= s.label %></span>
+              </label>
+            <% } %>
+          </div>
+          <%- include('../partials/field-error', { name: 'status' }) %>
+        </fieldset>
+        <div class="field <%= errors.adminResponse ? 'invalid' : '' %>">
+          <label for="adminResponse">Response to the student</label>
+          <textarea id="adminResponse" name="adminResponse" maxlength="1000" placeholder="What has been done or is planned?"><%= values.adminResponse || '' %></textarea>
+          <span class="hint">Required when marking the complaint as resolved.</span>
+          <%- include('../partials/field-error', { name: 'adminResponse' }) %>
+        </div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn">Save update</button></div>
+    </form>
+  </section>
+</div>
+<%- include('../partials/foot') %>

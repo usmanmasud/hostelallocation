@@ -1,0 +1,86 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Rooms</h1>
+    <p>Hostel rooms, their capacity and current occupancy. Each hostel is reserved for one gender.</p>
+  </div>
+</div>
+
+<div class="grid grid-main-side">
+  <section class="card flush">
+    <div class="card-header">
+      <form method="get" action="/admin/rooms" class="filters" style="margin:0">
+        <div class="field">
+          <label for="hostel">Hostel</label>
+          <select id="hostel" name="hostel">
+            <option value="">All hostels</option>
+            <% for (const h of hostels) { %><option value="<%= h %>" <%= filter.hostel === h ? 'selected' : '' %>><%= h %></option><% } %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="gender-filter">Gender</label>
+          <select id="gender-filter" name="gender">
+            <option value="">All</option>
+            <% for (const g of genders) { %><option value="<%= g.value %>" <%= filter.gender === g.value ? 'selected' : '' %>><%= g.label %></option><% } %>
+          </select>
+        </div>
+        <button type="submit" class="btn secondary">Filter</button>
+      </form>
+    </div>
+    <% if (rooms.length === 0) { %>
+      <div class="empty"><h3>No rooms found</h3><p>Add a room using the form.</p></div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Hostel</th><th>Room</th><th>Gender</th><th class="num">Occupancy</th><th>Status</th></tr></thead>
+          <tbody>
+            <% for (const r of rooms) { const full = r.current_occupancy >= r.capacity; %>
+              <tr>
+                <td><%= r.hostel_name %></td>
+                <td><a href="/admin/rooms/<%= r.id %>">Room <%= r.room_number %></a></td>
+                <td><%= labelFor(GENDERS, r.gender) %></td>
+                <td class="num"><%= r.current_occupancy %> / <%= r.capacity %></td>
+                <td><span class="badge <%= full ? 'danger' : r.current_occupancy === 0 ? 'success' : 'warning' %>"><%= full ? 'Full' : r.current_occupancy === 0 ? 'Empty' : 'Has space' %></span></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="card">
+    <h2>Add a room</h2>
+    <form method="post" action="/admin/rooms" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="stack">
+        <div class="field <%= errors.hostelName ? 'invalid' : '' %>">
+          <label for="hostelName">Hostel name</label>
+          <input type="text" id="hostelName" name="hostelName" list="hostel-names" value="<%= values.hostelName || '' %>" required>
+          <datalist id="hostel-names"><% for (const h of hostels) { %><option value="<%= h %>"><% } %></datalist>
+          <%- include('../partials/field-error', { name: 'hostelName' }) %>
+        </div>
+        <div class="field <%= errors.roomNumber ? 'invalid' : '' %>">
+          <label for="roomNumber">Room number</label>
+          <input type="text" id="roomNumber" name="roomNumber" value="<%= values.roomNumber || '' %>" required>
+          <%- include('../partials/field-error', { name: 'roomNumber' }) %>
+        </div>
+        <div class="field <%= errors.gender ? 'invalid' : '' %>">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="">Select…</option>
+            <% for (const g of genders) { %><option value="<%= g.value %>" <%= values.gender === g.value ? 'selected' : '' %>><%= g.label %></option><% } %>
+          </select>
+          <%- include('../partials/field-error', { name: 'gender' }) %>
+        </div>
+        <div class="field <%= errors.capacity ? 'invalid' : '' %>">
+          <label for="capacity">Capacity (beds)</label>
+          <input type="number" id="capacity" name="capacity" min="1" max="12" value="<%= values.capacity ?? 2 %>" required>
+          <%- include('../partials/field-error', { name: 'capacity' }) %>
+        </div>
+        <button type="submit" class="btn block">Add room</button>
+      </div>
+    </form>
+  </section>
+</div>
+<%- include('../partials/foot') %>

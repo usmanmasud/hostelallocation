@@ -1,0 +1,65 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <div class="breadcrumb"><a href="/admin/rooms">Rooms</a> / <%= room.hostel_name %> <%= room.room_number %></div>
+    <h1><%= room.hostel_name %> — Room <%= room.room_number %></h1>
+    <p><%= labelFor(GENDERS, room.gender) %> hostel · <%= room.current_occupancy %> of <%= room.capacity %> beds occupied</p>
+  </div>
+</div>
+
+<div class="grid grid-main-side">
+  <section class="card flush">
+    <div class="card-header"><h2>Occupants</h2></div>
+    <% if (occupants.length === 0) { %>
+      <div class="empty"><p>This room is empty.</p></div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Course</th><th class="num">Score</th><th>Allocated</th><th></th></tr></thead>
+          <tbody>
+            <% for (const o of occupants) { %>
+              <tr>
+                <td><%= o.name %><span class="sub"><%= o.matric_number %></span></td>
+                <td><%= o.course %><span class="sub"><%= o.level %> Level</span></td>
+                <td class="num"><span class="badge <%= scoreTone(o.compatibility_score) %>"><%= score(o.compatibility_score) %></span></td>
+                <td class="nowrap"><%= formatDate(o.allocated_at) %></td>
+                <td>
+                  <form method="post" action="/admin/allocations/<%= o.allocation_id %>/vacate" data-confirm="End <%= o.name %>'s allocation and free the bed?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="returnTo" value="room">
+                    <input type="hidden" name="roomId" value="<%= room.id %>">
+                    <button type="submit" class="btn small secondary">Vacate</button>
+                  </form>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <div class="stack">
+    <section class="card">
+      <h2>Capacity</h2>
+      <form method="post" action="/admin/rooms/<%= room.id %>/capacity" class="actions">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="sr-only" for="capacity">Capacity</label>
+        <input type="number" id="capacity" name="capacity" min="<%= Math.max(1, room.current_occupancy) %>" max="12" value="<%= room.capacity %>" style="max-width:110px">
+        <button type="submit" class="btn secondary">Save</button>
+      </form>
+      <p class="muted small" style="margin:.75rem 0 0">Capacity cannot be lower than the current number of occupants.</p>
+    </section>
+    <% if (room.current_occupancy === 0) { %>
+      <section class="card">
+        <h2>Delete room</h2>
+        <p class="muted small">Only rooms that have never been allocated can be deleted.</p>
+        <form method="post" action="/admin/rooms/<%= room.id %>/delete" data-confirm="Delete this room permanently?">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn danger">Delete room</button>
+        </form>
+      </section>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/foot') %>

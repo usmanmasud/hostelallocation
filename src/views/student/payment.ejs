@@ -1,0 +1,20 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Payment status</h1>
+    <p>Your hostel fee for the <%= settings.academicSession %> session, as recorded by the hostel office.</p>
+  </div>
+</div>
+<section class="card">
+  <div class="room-head">
+    <span class="badge <%= badgeTone(payment.status) %>" style="font-size:1.1rem;padding:.4rem 1rem"><%= labelFor(PAYMENT_STATUSES, payment.status) %></span>
+    <dl class="details">
+      <dt>Amount</dt><dd><%= money(payment.amount, settings.currency) %></dd>
+      <dt>Reference</dt><dd><%= payment.reference || '—' %></dd>
+      <dt>Note</dt><dd><%= payment.note || '—' %></dd>
+      <dt>Last updated</dt><dd><%= formatDateTime(payment.updated_at) %><%= payment.updated_by_name ? ` by ${payment.updated_by_name}` : '' %></dd>
+    </dl>
+  </div>
+</section>
+<div class="alert info" style="margin-top:1.25rem">This page shows the payment status only. Payments are made through the school's approved channels; once the hostel office confirms your payment, the status here is updated.</div>
+<%- include('../partials/foot') %>

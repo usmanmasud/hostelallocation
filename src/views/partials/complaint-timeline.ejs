@@ -1,0 +1,11 @@
+<ul class="timeline">
+  <li><span class="dot done"></span><div><strong>Submitted</strong><div class="muted small"><%= formatDateTime(complaint.submitted_at) %></div></div></li>
+  <% if (complaint.escalated_at) { %>
+    <li><span class="dot alert"></span><div><strong>Escalated to <%= settings.deanName %></strong><div class="muted small"><%= formatDateTime(complaint.escalated_at) %> · unresolved after <%= settings.escalationDays %> day(s)</div></div></li>
+  <% } %>
+  <% if (complaint.resolved_at) { %>
+    <li><span class="dot done"></span><div><strong>Resolved</strong><div class="muted small"><%= formatDateTime(complaint.resolved_at) %></div></div></li>
+  <% } else { %>
+    <li><span class="dot"></span><div><strong>Awaiting resolution</strong><div class="muted small">Open for <%= durationSince(complaint.submitted_at) %></div></div></li>
+  <% } %>
+</ul>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · <%= appName %></title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script src="/static/js/app.js" defer></script>
+</head>
+<body>
+<% if (currentUser) {
+  const navByRole = {
+    student: [
+      { href: '/student', label: 'Dashboard', exact: true },
+      { href: '/student/preferences', label: 'Room preferences' },
+      { href: '/student/allocation', label: 'My allocation' },
+      { href: '/student/complaints', label: 'Complaints' },
+      { href: '/student/payment', label: 'Payment status' },
+    ],
+    hostel_admin: [
+      { href: '/admin', label: 'Dashboard', exact: true },
+      { href: '/admin/allocations', label: 'Allocations' },
+      { href: '/admin/rooms', label: 'Rooms' },
+      { href: '/admin/students', label: 'Students' },
+      { href: '/admin/payments', label: 'Payments' },
+      { href: '/admin/complaints', label: 'Complaints' },
+    ],
+    system_admin: [
+      { href: '/system', label: 'Overview', exact: true },
+      { href: '/system/users', label: 'User accounts' },
+      { href: '/system/settings', label: 'System settings' },
+      { href: '/system/outbox', label: 'Escalation emails' },
+    ],
+  };
+  const isActive = (item) => item.exact ? currentPath === item.href || currentPath === item.href + '/' : currentPath === item.href || currentPath.startsWith(item.href + '/');
+%>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">SH</span>
+        <span>Smart Hostel<small>Allocation Management</small></span>
+      </a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false">Menu</button>
+    </div>
+    <div class="nav-wrap">
+      <nav class="nav" aria-label="Main">
+        <% for (const item of navByRole[currentUser.role]) { %>
+          <a href="<%= item.href %>" class="<%= isActive(item) ? 'active' : '' %>" <%- isActive(item) ? 'aria-current="page"' : '' %>><%= item.label %></a>
+        <% } %>
+        <div class="nav-label">Account</div>
+        <a href="/notifications" class="<%= currentPath === '/notifications' ? 'active' : '' %>">
+          Notifications
+          <% if (unreadCount > 0) { %><span class="count" aria-label="<%= unreadCount %> unread"><%= unreadCount %></span><% } %>
+        </a>
+        <a href="/account" class="<%= currentPath === '/account' ? 'active' : '' %>">My account</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="who"><%= currentUser.name %></div>
+        <div class="role"><%= roleLabel(currentUser.role) %></div>
+        <form method="post" action="/logout">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </aside>
+  <main class="main" id="main">
+    <%- include('flash') %>
+<% } %>

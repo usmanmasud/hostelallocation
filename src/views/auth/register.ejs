@@ -1,0 +1,77 @@
+<%- include('../partials/head') %>
+<div class="auth">
+  <%- include('../partials/auth-aside') %>
+  <main class="auth-main">
+    <div class="auth-card wide">
+      <h2>Create your student account</h2>
+      <p class="muted">After registering, sign in and fill in your room preferences so you can be matched with compatible roommates.</p>
+      <% if (errors.form) { %><div class="alert error" role="alert"><%= errors.form %></div><% } %>
+      <form method="post" action="/register" class="card" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="form-grid">
+          <div class="field full <%= errors.name ? 'invalid' : '' %>">
+            <label for="name">Full name</label>
+            <input type="text" id="name" name="name" value="<%= values.name || '' %>" autocomplete="name" required>
+            <%- include('../partials/field-error', { name: 'name' }) %>
+          </div>
+          <div class="field <%= errors.email ? 'invalid' : '' %>">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" value="<%= values.email || '' %>" autocomplete="email" required>
+            <%- include('../partials/field-error', { name: 'email' }) %>
+          </div>
+          <div class="field <%= errors.matricNumber ? 'invalid' : '' %>">
+            <label for="matricNumber">Matric number</label>
+            <input type="text" id="matricNumber" name="matricNumber" value="<%= values.matricNumber || '' %>" placeholder="e.g. CSC/2023/001" required>
+            <%- include('../partials/field-error', { name: 'matricNumber' }) %>
+          </div>
+          <div class="field <%= errors.gender ? 'invalid' : '' %>">
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+              <option value="">Select…</option>
+              <% for (const g of genders) { %><option value="<%= g.value %>" <%= values.gender === g.value ? 'selected' : '' %>><%= g.label %></option><% } %>
+            </select>
+            <span class="hint">Used to place you in the correct hostel.</span>
+            <%- include('../partials/field-error', { name: 'gender' }) %>
+          </div>
+          <div class="field <%= errors.level ? 'invalid' : '' %>">
+            <label for="level">Level</label>
+            <select id="level" name="level" required>
+              <option value="">Select…</option>
+              <% for (const l of levels) { %><option value="<%= l %>" <%= String(values.level) === String(l) ? 'selected' : '' %>><%= l %> Level</option><% } %>
+            </select>
+            <%- include('../partials/field-error', { name: 'level' }) %>
+          </div>
+          <div class="field <%= errors.course ? 'invalid' : '' %>">
+            <label for="course">Course of study</label>
+            <select id="course" name="course" required>
+              <option value="">Select…</option>
+              <% for (const c of courses) { %><option value="<%= c %>" <%= values.course === c ? 'selected' : '' %>><%= c %></option><% } %>
+            </select>
+            <%- include('../partials/field-error', { name: 'course' }) %>
+          </div>
+          <div class="field <%= errors.phone ? 'invalid' : '' %>">
+            <label for="phone">Phone number <span class="muted">(optional)</span></label>
+            <input type="tel" id="phone" name="phone" value="<%= values.phone || '' %>" autocomplete="tel">
+            <%- include('../partials/field-error', { name: 'phone' }) %>
+          </div>
+          <div class="field <%= errors.password ? 'invalid' : '' %>">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="new-password" required>
+            <span class="hint">At least 8 characters, with letters and numbers.</span>
+            <%- include('../partials/field-error', { name: 'password' }) %>
+          </div>
+          <div class="field <%= errors.confirmPassword ? 'invalid' : '' %>">
+            <label for="confirmPassword">Confirm password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+            <%- include('../partials/field-error', { name: 'confirmPassword' }) %>
+          </div>
+        </div>
+        <div class="form-actions">
+          <a class="btn secondary" href="/login">I already have an account</a>
+          <button type="submit" class="btn">Create account</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<%- include('../partials/foot') %>

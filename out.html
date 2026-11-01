@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error · Smart Hostel</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script src="/static/js/app.js" defer></script>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">SH</span>
+        <span>Smart Hostel<small>Allocation Management</small></span>
+      </a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false">Menu</button>
+    </div>
+    <div class="nav-wrap">
+      <nav class="nav" aria-label="Main">
+        
+          <a href="/student" class="" >Dashboard</a>
+        
+          <a href="/student/preferences" class="" >Room preferences</a>
+        
+          <a href="/student/allocation" class="" >My allocation</a>
+        
+          <a href="/student/complaints" class="" >Complaints</a>
+        
+          <a href="/student/payment" class="" >Payment status</a>
+        
+        <div class="nav-label">Account</div>
+        <a href="/notifications" class="">
+          Notifications
+          <span class="count" aria-label="2 unread">2</span>
+        </a>
+        <a href="/account" class="">My account</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="who">Abdullahi Musa</div>
+        <div class="role">Student</div>
+        <form method="post" action="/logout">
+          <input type="hidden" name="_csrf" value="a052c90d1950c3b6ef24841080154261f8bf4acfd5e77bfe">
+          <button type="submit">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </aside>
+  <main class="main" id="main">
+    
+
+
+
+<div class="error-page">
+  <div class="code">403</div>
+  <h1>Access denied</h1>
+  <p class="muted">You do not have permission to access this page.</p>
+  <a class="btn" href="/">Go to your dashboard</a>
+</div>
+
+  </main>
+</div>
+
+</body>
+</html>
+

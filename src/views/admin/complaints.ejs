@@ -1,0 +1,53 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Complaints</h1>
+    <p>Complaints unresolved after <%= escalationDays %> day(s) are escalated automatically to the Dean of Student Affairs.</p>
+  </div>
+</div>
+<section class="card flush">
+  <div class="card-header">
+    <form method="get" action="/admin/complaints" class="filters" style="margin:0">
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="">All</option>
+          <% for (const s of statuses) { %><option value="<%= s.value %>" <%= filter.status === s.value ? 'selected' : '' %>><%= s.label %></option><% } %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="">All</option>
+          <% for (const c of categories) { %><option value="<%= c.value %>" <%= filter.category === c.value ? 'selected' : '' %>><%= c.label %></option><% } %>
+        </select>
+      </div>
+      <button type="submit" class="btn secondary">Filter</button>
+    </form>
+  </div>
+  <% if (complaints.length === 0) { %>
+    <div class="empty"><h3>No complaints found</h3></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Complaint</th><th>Student</th><th>Room</th><th>Open for</th><th>Status</th></tr></thead>
+        <tbody>
+          <% for (const c of complaints) { %>
+            <tr>
+              <td class="muted"><%= c.id %></td>
+              <td><a href="/admin/complaints/<%= c.id %>"><%= c.title %></a><span class="sub"><%= labelFor(COMPLAINT_CATEGORIES, c.category) %></span></td>
+              <td><%= c.student_name %><span class="sub"><%= c.matric_number %></span></td>
+              <td class="nowrap"><%= c.hostel_name ? `${c.hostel_name} ${c.room_number}` : '—' %></td>
+              <td class="nowrap"><%= c.resolved_at ? '—' : durationSince(c.submitted_at) %><span class="sub"><%= formatDate(c.submitted_at) %></span></td>
+              <td>
+                <span class="badge <%= badgeTone(c.status) %>"><%= labelFor(COMPLAINT_STATUSES, c.status) %></span>
+                <% if (c.escalation_level > 0 && c.status !== 'escalated') { %><span class="badge danger">Escalated</span><% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

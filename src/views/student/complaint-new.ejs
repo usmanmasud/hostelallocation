@@ -1,0 +1,36 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <div class="breadcrumb"><a href="/student/complaints">Complaints</a> / New</div>
+    <h1>Report a complaint</h1>
+    <p>The hostel administrator handles complaints first. If yours is not resolved within <%= escalationDays %> day(s), it is escalated to the Dean of Student Affairs automatically.</p>
+  </div>
+</div>
+<form method="post" action="/student/complaints" class="card" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="form-grid">
+    <div class="field <%= errors.category ? 'invalid' : '' %>">
+      <label for="category">Category</label>
+      <select id="category" name="category" required>
+        <option value="">Select…</option>
+        <% for (const c of categories) { %><option value="<%= c.value %>" <%= values.category === c.value ? 'selected' : '' %>><%= c.label %></option><% } %>
+      </select>
+      <%- include('../partials/field-error', { name: 'category' }) %>
+    </div>
+    <div class="field <%= errors.title ? 'invalid' : '' %>">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" value="<%= values.title || '' %>" maxlength="120" placeholder="e.g. Bathroom tap is leaking" required>
+      <%- include('../partials/field-error', { name: 'title' }) %>
+    </div>
+    <div class="field full <%= errors.description ? 'invalid' : '' %>">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" maxlength="2000" required placeholder="Describe the problem, where it is and when it started."><%= values.description || '' %></textarea>
+      <%- include('../partials/field-error', { name: 'description' }) %>
+    </div>
+  </div>
+  <div class="form-actions">
+    <a class="btn secondary" href="/student/complaints">Cancel</a>
+    <button type="submit" class="btn">Submit complaint</button>
+  </div>
+</form>
+<%- include('../partials/foot') %>

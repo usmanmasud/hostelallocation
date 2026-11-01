@@ -1,0 +1,65 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Welcome, <%= student.name.split(' ')[0] %></h1>
+    <p><%= student.matric_number %> · <%= student.course %> · <%= student.level %> Level · <%= settings.academicSession %> session</p>
+  </div>
+</div>
+
+<% if (!preference) { %>
+  <div class="alert info"><strong>Next step:</strong> fill in your room preferences so the system can match you with compatible roommates. <a href="/student/preferences">Fill in preferences →</a></div>
+<% } else if (!allocation) { %>
+  <div class="alert warning">Your preferences have been received. You are waiting to be matched to a room.</div>
+<% } %>
+
+<div class="grid grid-3">
+  <section class="card stat">
+    <span class="stat-label">Preferences</span>
+    <span class="stat-value"><%= preference ? 'Submitted' : 'Not yet' %></span>
+    <span class="stat-note"><%= preference ? 'Last updated ' + timeAgo(preference.updated_at) : 'Required before matching' %></span>
+    <a class="small" href="/student/preferences"><%= preference ? 'View preferences' : 'Fill in now' %></a>
+  </section>
+  <section class="card stat">
+    <span class="stat-label">Room</span>
+    <span class="stat-value"><%= allocation ? allocation.hostel_name + ' ' + allocation.room_number : 'Not allocated' %></span>
+    <span class="stat-note">
+      <% if (allocation) { %>Compatibility score: <strong><%= score(allocation.compatibility_score) %></strong><% } else { %>Allocated after matching<% } %>
+    </span>
+    <a class="small" href="/student/allocation">View allocation</a>
+  </section>
+  <section class="card stat">
+    <span class="stat-label">Hostel fee</span>
+    <span class="stat-value"><span class="badge <%= badgeTone(payment.status) %>" style="font-size:1rem"><%= labelFor(PAYMENT_STATUSES, payment.status) %></span></span>
+    <span class="stat-note"><%= money(payment.amount, settings.currency) %> · updated <%= timeAgo(payment.updated_at) %></span>
+    <a class="small" href="/student/payment">View payment status</a>
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Recent complaints</h2>
+    <div class="actions">
+      <span class="muted small"><%= openComplaints %> open</span>
+      <% if (allocation) { %><a class="btn small" href="/student/complaints/new">Report a complaint</a><% } %>
+    </div>
+  </div>
+  <% if (recentComplaints.length === 0) { %>
+    <p class="muted">You have not reported any complaints.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Complaint</th><th>Submitted</th><th>Status</th></tr></thead>
+        <tbody>
+          <% for (const c of recentComplaints) { %>
+            <tr>
+              <td><a href="/student/complaints/<%= c.id %>"><%= c.title %></a><span class="sub"><%= labelFor(COMPLAINT_CATEGORIES, c.category) %></span></td>
+              <td class="nowrap"><%= formatDate(c.submitted_at) %></td>
+              <td><span class="badge <%= badgeTone(c.status) %>"><%= labelFor(COMPLAINT_STATUSES, c.status) %></span></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

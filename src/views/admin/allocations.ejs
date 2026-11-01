@@ -1,0 +1,100 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Allocations</h1>
+    <p>The matching engine compares the preferences of every waiting student and chooses the room arrangement with the highest overall compatibility.</p>
+  </div>
+</div>
+
+<% if (lastRun) { %>
+  <section class="card" style="margin-bottom:1.25rem">
+    <h2>Last matching run</h2>
+    <dl class="details">
+      <dt>Students allocated</dt><dd><%= lastRun.placedCount %></dd>
+      <dt>Average compatibility</dt><dd><%= score(lastRun.averageScore) %> <span class="muted small">(across newly allocated students with roommates)</span></dd>
+      <% for (const g of lastRun.groups) { %>
+        <dt><%= labelFor(GENDERS, g.gender) %> students</dt>
+        <dd>
+          <%= g.placed %> placed in <%= g.roomsUsed %> room(s) using <%= g.method === 'exhaustive' ? 'exhaustive search (guaranteed best arrangement)' : 'local search optimisation' %>
+          <% if (g.unplaced.length) { %><div class="field-error">No free beds for: <%= g.unplaced.join(', ') %>. Add rooms and run matching again.</div><% } %>
+        </dd>
+      <% } %>
+    </dl>
+  </section>
+<% } %>
+
+<section class="card" style="margin-bottom:1.25rem">
+  <div class="card-header">
+    <div>
+      <h2>Students waiting for a room: <%= waiting.length %></h2>
+      <p class="muted small" style="margin:0">
+        Allocation mode: <strong><%= settings.allocationMode === 'instant' ? 'Instant' : 'Batch' %></strong>.
+        <%= settings.allocationMode === 'instant' ? 'Students are matched as soon as they submit preferences; run matching here to place anyone left waiting (for example after adding rooms).' : 'Run matching when a group of students has submitted preferences.' %>
+      </p>
+    </div>
+    <form method="post" action="/admin/allocations/run" data-confirm="Run the matching engine for all <%= waiting.length %> waiting student(s)? Allocations are saved immediately.">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn" <%= waiting.length === 0 ? 'disabled' : '' %>>Run matching</button>
+    </form>
+  </div>
+  <% if (waiting.length > 0) { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>Gender</th><th>Course</th></tr></thead>
+        <tbody>
+          <% for (const w of waiting.slice(0, 10)) { %>
+            <tr><td><%= w.name %><span class="sub"><%= w.matric_number %></span></td><td><%= labelFor(GENDERS, w.gender) %></td><td><%= w.course %></td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <% if (waiting.length > 10) { %><p class="muted small" style="margin:.75rem 0 0">…and <%= waiting.length - 10 %> more. <a href="/admin/students?allocation=waiting">See all waiting students</a>.</p><% } %>
+  <% } %>
+</section>
+
+<section class="card flush">
+  <div class="card-header">
+    <h2>Allocation record</h2>
+    <form method="get" action="/admin/allocations" class="filters" style="margin:0">
+      <div class="field">
+        <label for="search">Search</label>
+        <input type="search" id="search" name="search" value="<%= filter.search %>" placeholder="Name or matric no.">
+      </div>
+      <div class="field">
+        <label for="hostel">Hostel</label>
+        <select id="hostel" name="hostel">
+          <option value="">All hostels</option>
+          <% for (const h of hostels) { %><option value="<%= h %>" <%= filter.hostel === h ? 'selected' : '' %>><%= h %></option><% } %>
+        </select>
+      </div>
+      <button type="submit" class="btn secondary">Filter</button>
+    </form>
+  </div>
+  <% if (allocations.length === 0) { %>
+    <div class="empty"><h3>No allocations</h3><p>Allocations appear here after the matching engine runs.</p></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Room</th><th>Student</th><th>Course</th><th class="num">Score</th><th>Allocated</th><th></th></tr></thead>
+        <tbody>
+          <% for (const a of allocations) { %>
+            <tr>
+              <td class="nowrap"><a href="/admin/rooms/<%= a.room_id %>"><%= a.hostel_name %> <%= a.room_number %></a><span class="sub"><%= a.current_occupancy %>/<%= a.capacity %> beds</span></td>
+              <td><%= a.name %><span class="sub"><%= a.matric_number %></span></td>
+              <td><%= a.course %></td>
+              <td class="num"><span class="badge <%= scoreTone(a.compatibility_score) %>"><%= score(a.compatibility_score) %></span></td>
+              <td class="nowrap"><%= formatDate(a.allocated_at) %></td>
+              <td>
+                <form method="post" action="/admin/allocations/<%= a.id %>/vacate" data-confirm="End <%= a.name %>'s allocation and free the bed?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="btn small secondary">Vacate</button>
+                </form>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

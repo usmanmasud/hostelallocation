@@ -1,0 +1,25 @@
+{
+  "name": "smart-hostel-allocation",
+  "version": "1.0.0",
+  "description": "Smart Hostel Allocation Management System: preference-based room matching, time-based complaint escalation and payment status tracking.",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/db/seed.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^7.0.2",
+    "express": "^5.3.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "nodemailer": "^10.3.1"
+  }
+}

@@ -1,0 +1,3 @@
+<% for (const item of flash) { %>
+  <div class="alert <%= item.type %>" role="<%= item.type === 'error' ? 'alert' : 'status' %>"><%= item.message %></div>
+<% } %>

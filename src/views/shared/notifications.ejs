@@ -1,0 +1,34 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Notifications</h1>
+    <p>Updates about allocations, complaints and payments.</p>
+  </div>
+  <% if (unreadCount > 0) { %>
+    <form method="post" action="/notifications/read-all">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn secondary">Mark all as read</button>
+    </form>
+  <% } %>
+</div>
+<section class="card flush">
+  <% if (items.length === 0) { %>
+    <div class="empty"><h3>No notifications yet</h3><p>You will see updates here as things happen.</p></div>
+  <% } else { %>
+    <ul class="notice-list">
+      <% for (const item of items) { %>
+        <li class="<%= item.is_read ? '' : 'unread' %>">
+          <form method="post" action="/notifications/<%= item.id %>/open">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit">
+              <strong><%= item.subject %></strong>
+              <span class="sub muted small" style="display:block"><%= item.body %></span>
+              <span class="muted small"><%= timeAgo(item.created_at) %></span>
+            </button>
+          </form>
+        </li>
+      <% } %>
+    </ul>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

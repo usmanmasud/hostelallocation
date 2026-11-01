@@ -1,0 +1,39 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Escalation emails</h1>
+    <p>Every notification sent to the Dean of Student Affairs. "Logged" means SMTP is not configured, so the email was recorded here instead of being sent.</p>
+  </div>
+  <form method="post" action="/system/escalation/run">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button type="submit" class="btn">Run escalation check now</button>
+  </form>
+</div>
+<section class="card flush">
+  <% if (emails.length === 0) { %>
+    <div class="empty"><h3>No escalation emails yet</h3><p>Emails appear here when complaints pass the escalation time limit.</p></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Email</th><th>Recipient</th><th>Created</th><th>Delivery</th></tr></thead>
+        <tbody>
+          <% for (const e of emails) { %>
+            <tr>
+              <td>
+                <strong><%= e.subject %></strong>
+                <details><summary class="small">Show message</summary><pre class="mail"><%= e.body %></pre></details>
+              </td>
+              <td><%= e.recipient || '—' %></td>
+              <td class="nowrap"><%= formatDateTime(e.created_at) %></td>
+              <td>
+                <span class="badge <%= badgeTone(e.delivery_status) %>"><%= e.delivery_status %></span>
+                <% if (e.delivery_error) { %><span class="sub field-error"><%= e.delivery_error %></span><% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

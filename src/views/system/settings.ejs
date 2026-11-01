@@ -1,0 +1,84 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>System settings</h1>
+    <p>Complaint escalation, allocation behaviour, fees and the course list.</p>
+  </div>
+</div>
+<form method="post" action="/system/settings" novalidate class="stack" style="max-width:860px">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <section class="card">
+    <h2>Complaint escalation</h2>
+    <p class="muted small">Complaints still unresolved after this many days are escalated to the Dean of Student Affairs, who receives an email with the complaint's details.</p>
+    <div class="form-grid">
+      <div class="field <%= errors.escalationDays ? 'invalid' : '' %>">
+        <label for="escalationDays">Time limit (days)</label>
+        <input type="number" id="escalationDays" name="escalationDays" min="1" max="60" value="<%= values.escalationDays %>" required>
+        <%- include('../partials/field-error', { name: 'escalationDays' }) %>
+      </div>
+      <div></div>
+      <div class="field <%= errors.deanName ? 'invalid' : '' %>">
+        <label for="deanName">Dean of Student Affairs — name</label>
+        <input type="text" id="deanName" name="deanName" value="<%= values.deanName %>" required>
+        <%- include('../partials/field-error', { name: 'deanName' }) %>
+      </div>
+      <div class="field <%= errors.deanEmail ? 'invalid' : '' %>">
+        <label for="deanEmail">Dean of Student Affairs — email</label>
+        <input type="email" id="deanEmail" name="deanEmail" value="<%= values.deanEmail %>" required>
+        <%- include('../partials/field-error', { name: 'deanEmail' }) %>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Allocation</h2>
+    <fieldset class="field <%= errors.allocationMode ? 'invalid' : '' %>">
+      <legend>Allocation mode</legend>
+      <div class="choice-group" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+        <% for (const m of modes) { %>
+          <label class="choice">
+            <input type="radio" name="allocationMode" value="<%= m.value %>" <%= values.allocationMode === m.value ? 'checked' : '' %>>
+            <span><%= m.label %></span>
+          </label>
+        <% } %>
+      </div>
+      <%- include('../partials/field-error', { name: 'allocationMode' }) %>
+    </fieldset>
+  </section>
+
+  <section class="card">
+    <h2>Session and fees</h2>
+    <div class="form-grid">
+      <div class="field <%= errors.academicSession ? 'invalid' : '' %>">
+        <label for="academicSession">Academic session</label>
+        <input type="text" id="academicSession" name="academicSession" value="<%= values.academicSession %>" required>
+        <%- include('../partials/field-error', { name: 'academicSession' }) %>
+      </div>
+      <div class="field <%= errors.currency ? 'invalid' : '' %>">
+        <label for="currency">Currency code</label>
+        <input type="text" id="currency" name="currency" maxlength="3" value="<%= values.currency %>" required>
+        <%- include('../partials/field-error', { name: 'currency' }) %>
+      </div>
+      <div class="field <%= errors.hostelFee ? 'invalid' : '' %>">
+        <label for="hostelFee">Default hostel fee</label>
+        <input type="number" id="hostelFee" name="hostelFee" min="0" value="<%= values.hostelFee %>" required>
+        <span class="hint">Applied to payment records of newly registered students.</span>
+        <%- include('../partials/field-error', { name: 'hostelFee' }) %>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Courses of study</h2>
+    <div class="field <%= errors.courses ? 'invalid' : '' %>">
+      <label for="courses">One course per line</label>
+      <textarea id="courses" name="courses" rows="10" required><%= values.courses %></textarea>
+      <span class="hint">Students choose from this list when registering; course of study is one of the compatibility criteria.</span>
+      <%- include('../partials/field-error', { name: 'courses' }) %>
+    </div>
+  </section>
+
+  <div class="form-actions"><button type="submit" class="btn">Save settings</button></div>
+</form>
+<%- include('../partials/foot') %>

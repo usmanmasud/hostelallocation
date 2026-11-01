@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>Payments</h1>
+    <p>Record and update each student's hostel fee status. The system records status only; it does not process payments.</p>
+  </div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:1.25rem">
+  <% for (const status of statuses) { %>
+    <a class="card stat" href="/admin/payments?status=<%= status.value %>" style="color:inherit;text-decoration:none">
+      <span class="stat-label"><%= status.label %></span>
+      <span class="stat-value"><%= summary[status.value].count %></span>
+      <span class="stat-note"><%= money(summary[status.value].amount, currency) %></span>
+    </a>
+  <% } %>
+</div>
+
+<section class="card flush">
+  <div class="card-header">
+    <form method="get" action="/admin/payments" class="filters" style="margin:0">
+      <div class="field">
+        <label for="search">Search</label>
+        <input type="search" id="search" name="search" value="<%= filter.search %>" placeholder="Name or matric no.">
+      </div>
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="">All</option>
+          <% for (const s of statuses) { %><option value="<%= s.value %>" <%= filter.status === s.value ? 'selected' : '' %>><%= s.label %></option><% } %>
+        </select>
+      </div>
+      <button type="submit" class="btn secondary">Filter</button>
+    </form>
+  </div>
+  <% if (payments.length === 0) { %>
+    <div class="empty"><h3>No payment records found</h3></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>Room</th><th class="num">Amount</th><th>Status</th><th>Reference</th><th>Updated</th><th></th></tr></thead>
+        <tbody>
+          <% for (const p of payments) { %>
+            <tr>
+              <td><%= p.student_name %><span class="sub"><%= p.matric_number %></span></td>
+              <td class="nowrap"><%= p.hostel_name ? `${p.hostel_name} ${p.room_number}` : '—' %></td>
+              <td class="num"><%= money(p.amount, currency) %></td>
+              <td><span class="badge <%= badgeTone(p.status) %>"><%= labelFor(PAYMENT_STATUSES, p.status) %></span></td>
+              <td><%= p.reference || '—' %></td>
+              <td class="nowrap"><%= formatDate(p.updated_at) %><span class="sub"><%= p.updated_by_name || 'System' %></span></td>
+              <td><a class="btn small secondary" href="/admin/payments/<%= p.student_id %>">Update</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

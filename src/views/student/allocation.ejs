@@ -1,0 +1,73 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>My allocation</h1>
+    <p>Your room, your roommates and how well your preferences match.</p>
+  </div>
+</div>
+
+<% if (!details) { %>
+  <section class="card">
+    <div class="empty">
+      <h3>You have not been allocated a room yet</h3>
+      <% if (hasPreferences) { %>
+        <p>Your preferences have been received. You will be notified as soon as you are matched to a room.</p>
+      <% } else { %>
+        <p>Fill in your room preferences first so the system can find compatible roommates for you.</p>
+        <a class="btn" href="/student/preferences">Fill in preferences</a>
+      <% } %>
+    </div>
+  </section>
+<% } else { const a = details.allocation; %>
+  <section class="card">
+    <div class="room-head">
+      <div class="score-ring <%= scoreTone(a.compatibility_score) %>" style="--value: <%= Math.round(a.compatibility_score ?? 0) %>">
+        <span><%= score(a.compatibility_score) %></span>
+      </div>
+      <div>
+        <h2><%= a.hostel_name %> — Room <%= a.room_number %></h2>
+        <dl class="details">
+          <dt>Room size</dt><dd><%= a.capacity %>-person room · <%= a.current_occupancy %> occupant(s)</dd>
+          <dt>Allocated</dt><dd><%= formatDateTime(a.allocated_at) %></dd>
+          <dt>Your score</dt>
+          <dd><%= a.compatibility_score == null ? 'No roommates yet' : score(a.compatibility_score) + ' average compatibility with your roommates' %></dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Roommates</h2>
+    <% if (details.roommates.length === 0) { %>
+      <p class="muted">You are currently the only occupant of this room. Your score will update when a roommate is allocated.</p>
+    <% } %>
+    <% for (const mate of details.roommates) { %>
+      <article class="roommate">
+        <div class="roommate-head">
+          <div>
+            <strong><%= mate.name %></strong>
+            <span class="sub muted small"><%= mate.course %> · <%= mate.level %> Level</span>
+          </div>
+          <span class="badge <%= scoreTone(mate.comparison.score) %>"><%= score(mate.comparison.score) %> match · <%= mate.comparison.matched %> of <%= mate.comparison.total %> criteria</span>
+        </div>
+        <ul class="criteria">
+          <% for (const item of mate.comparison.breakdown) { %>
+            <li>
+              <span class="<%= item.match ? 'mark-yes' : 'mark-no' %>" aria-label="<%= item.match ? 'Match' : 'No match' %>"><%= item.match ? '✓' : '–' %></span>
+              <span class="muted"><%= item.label %></span>
+              <span class="vals">
+                <% if (item.key === 'course') { %>
+                  <%= item.match ? item.a : `${item.a} / ${item.b}` %>
+                <% } else { %>
+                  <%= item.match ? optionLabel(item.key, item.a) : `${optionLabel(item.key, item.a)} / ${optionLabel(item.key, item.b)}` %>
+                <% } %>
+              </span>
+            </li>
+          <% } %>
+        </ul>
+      </article>
+    <% } %>
+    <p class="muted small" style="margin-top:1rem">The compatibility score is the percentage of criteria on which you and a roommate gave the same answer. Rooms are arranged to give the best overall result for all students, so every student is placed even when the best available match is not a strong one.</p>
+  </section>
+<% } %>
+<%- include('../partials/foot') %>

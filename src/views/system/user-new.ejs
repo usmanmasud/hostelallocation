@@ -1,0 +1,47 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <div class="breadcrumb"><a href="/system/users">User accounts</a> / New</div>
+    <h1>New staff account</h1>
+    <p>Create an account for a Hostel Administrator or another System Administrator.</p>
+  </div>
+</div>
+<form method="post" action="/system/users" class="card" novalidate style="max-width:720px">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="form-grid">
+    <div class="field full <%= errors.name ? 'invalid' : '' %>">
+      <label for="name">Full name</label>
+      <input type="text" id="name" name="name" value="<%= values.name || '' %>" required>
+      <%- include('../partials/field-error', { name: 'name' }) %>
+    </div>
+    <div class="field <%= errors.email ? 'invalid' : '' %>">
+      <label for="email">Email address</label>
+      <input type="email" id="email" name="email" value="<%= values.email || '' %>" required>
+      <%- include('../partials/field-error', { name: 'email' }) %>
+    </div>
+    <div class="field <%= errors.role ? 'invalid' : '' %>">
+      <label for="role">Role</label>
+      <select id="role" name="role" required>
+        <option value="">Select…</option>
+        <% for (const r of roles) { %><option value="<%= r.value %>" <%= values.role === r.value ? 'selected' : '' %>><%= r.label %></option><% } %>
+      </select>
+      <%- include('../partials/field-error', { name: 'role' }) %>
+    </div>
+    <div class="field <%= errors.password ? 'invalid' : '' %>">
+      <label for="password">Initial password</label>
+      <input type="password" id="password" name="password" autocomplete="new-password" required>
+      <span class="hint">At least 8 characters, with letters and numbers.</span>
+      <%- include('../partials/field-error', { name: 'password' }) %>
+    </div>
+    <div class="field <%= errors.confirmPassword ? 'invalid' : '' %>">
+      <label for="confirmPassword">Confirm password</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+      <%- include('../partials/field-error', { name: 'confirmPassword' }) %>
+    </div>
+  </div>
+  <div class="form-actions">
+    <a class="btn secondary" href="/system/users">Cancel</a>
+    <button type="submit" class="btn">Create account</button>
+  </div>
+</form>
+<%- include('../partials/foot') %>

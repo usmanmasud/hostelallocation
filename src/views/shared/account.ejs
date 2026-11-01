@@ -1,0 +1,45 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>My account</h1>
+    <p>Your sign-in details and password.</p>
+  </div>
+</div>
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Profile</h2>
+    <dl class="details">
+      <dt>Name</dt><dd><%= currentUser.name %></dd>
+      <dt>Email</dt><dd><%= currentUser.email %></dd>
+      <dt>Role</dt><dd><%= roleLabel(currentUser.role) %></dd>
+      <dt>Member since</dt><dd><%= formatDate(currentUser.created_at) %></dd>
+      <dt>Last sign-in</dt><dd><%= formatDateTime(currentUser.last_login_at) %></dd>
+    </dl>
+  </section>
+  <section class="card">
+    <h2>Change password</h2>
+    <form method="post" action="/account/password" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="stack">
+        <div class="field <%= errors.currentPassword ? 'invalid' : '' %>">
+          <label for="currentPassword">Current password</label>
+          <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password" required>
+          <%- include('../partials/field-error', { name: 'currentPassword' }) %>
+        </div>
+        <div class="field <%= errors.newPassword ? 'invalid' : '' %>">
+          <label for="newPassword">New password</label>
+          <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" required>
+          <span class="hint">At least 8 characters, with letters and numbers.</span>
+          <%- include('../partials/field-error', { name: 'newPassword' }) %>
+        </div>
+        <div class="field <%= errors.confirmPassword ? 'invalid' : '' %>">
+          <label for="confirmPassword">Confirm new password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+          <%- include('../partials/field-error', { name: 'confirmPassword' }) %>
+        </div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn">Update password</button></div>
+    </form>
+  </section>
+</div>
+<%- include('../partials/foot') %>

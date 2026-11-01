@@ -1,0 +1,41 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <div class="breadcrumb"><a href="/admin/payments">Payments</a> / <%= student.name %></div>
+    <h1>Update payment status</h1>
+    <p><%= student.name %> · <%= student.matric_number %> · <%= student.course %></p>
+  </div>
+</div>
+<form method="post" action="/admin/payments/<%= student.id %>" class="card" novalidate style="max-width:720px">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="form-grid">
+    <div class="field <%= errors.status ? 'invalid' : '' %>">
+      <label for="status">Status</label>
+      <select id="status" name="status" required>
+        <% for (const s of statuses) { %><option value="<%= s.value %>" <%= values.status === s.value ? 'selected' : '' %>><%= s.label %></option><% } %>
+      </select>
+      <%- include('../partials/field-error', { name: 'status' }) %>
+    </div>
+    <div class="field <%= errors.amount ? 'invalid' : '' %>">
+      <label for="amount">Amount (<%= currency %>)</label>
+      <input type="number" id="amount" name="amount" min="0" step="1" value="<%= values.amount ?? '' %>" required>
+      <%- include('../partials/field-error', { name: 'amount' }) %>
+    </div>
+    <div class="field full <%= errors.reference ? 'invalid' : '' %>">
+      <label for="reference">Receipt or transaction reference <span class="muted">(optional)</span></label>
+      <input type="text" id="reference" name="reference" maxlength="60" value="<%= values.reference || '' %>">
+      <%- include('../partials/field-error', { name: 'reference' }) %>
+    </div>
+    <div class="field full <%= errors.note ? 'invalid' : '' %>">
+      <label for="note">Note <span class="muted">(optional, visible to the student)</span></label>
+      <textarea id="note" name="note" maxlength="300"><%= values.note || '' %></textarea>
+      <%- include('../partials/field-error', { name: 'note' }) %>
+    </div>
+  </div>
+  <p class="muted small">Last updated <%= formatDateTime(payment.updated_at) %><%= payment.updated_by_name ? ` by ${payment.updated_by_name}` : '' %>.</p>
+  <div class="form-actions">
+    <a class="btn secondary" href="/admin/payments">Cancel</a>
+    <button type="submit" class="btn">Save payment status</button>
+  </div>
+</form>
+<%- include('../partials/foot') %>

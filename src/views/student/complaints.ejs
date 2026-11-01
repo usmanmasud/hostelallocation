@@ -1,0 +1,39 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>My complaints</h1>
+    <p>Report hostel facility problems and follow their progress.</p>
+  </div>
+  <% if (canSubmit) { %><a class="btn" href="/student/complaints/new">Report a complaint</a><% } %>
+</div>
+
+<% if (!canSubmit) { %>
+  <div class="alert info">You can report hostel complaints once you have been allocated a room.</div>
+<% } %>
+
+<section class="card flush">
+  <% if (complaints.length === 0) { %>
+    <div class="empty"><h3>No complaints reported</h3><p>Problems such as a broken tap or a faulty light can be reported here.</p></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Complaint</th><th>Room</th><th>Submitted</th><th>Status</th></tr></thead>
+        <tbody>
+          <% for (const c of complaints) { %>
+            <tr>
+              <td class="muted"><%= c.id %></td>
+              <td><a href="/student/complaints/<%= c.id %>"><%= c.title %></a><span class="sub"><%= labelFor(COMPLAINT_CATEGORIES, c.category) %></span></td>
+              <td class="nowrap"><%= c.hostel_name ? `${c.hostel_name} ${c.room_number}` : '—' %></td>
+              <td class="nowrap"><%= formatDate(c.submitted_at) %><span class="sub"><%= timeAgo(c.submitted_at) %></span></td>
+              <td>
+                <span class="badge <%= badgeTone(c.status) %>"><%= labelFor(COMPLAINT_STATUSES, c.status) %></span>
+                <% if (c.escalation_level > 0 && c.status !== 'escalated') { %><span class="badge danger">Escalated</span><% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

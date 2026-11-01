@@ -1,0 +1,47 @@
+<%- include('../partials/head') %>
+<div class="page-header">
+  <div>
+    <h1>User accounts</h1>
+    <p>Students register themselves; staff accounts are created here.</p>
+  </div>
+  <a class="btn" href="/system/users/new">New staff account</a>
+</div>
+<section class="card flush">
+  <div class="card-header">
+    <form method="get" action="/system/users" class="filters" style="margin:0">
+      <div class="field">
+        <label for="search">Search</label>
+        <input type="search" id="search" name="search" value="<%= filter.search %>" placeholder="Name or email">
+      </div>
+      <div class="field">
+        <label for="role">Role</label>
+        <select id="role" name="role">
+          <option value="">All roles</option>
+          <% for (const r of roles) { %><option value="<%= r.value %>" <%= filter.role === r.value ? 'selected' : '' %>><%= r.label %></option><% } %>
+        </select>
+      </div>
+      <button type="submit" class="btn secondary">Filter</button>
+    </form>
+  </div>
+  <% if (users.length === 0) { %>
+    <div class="empty"><h3>No users found</h3></div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead>
+        <tbody>
+          <% for (const u of users) { %>
+            <tr>
+              <td><%= u.name %><span class="sub"><%= u.email %></span></td>
+              <td><%= roleLabel(u.role) %></td>
+              <td><span class="badge <%= u.is_active ? 'success' : 'danger' %>"><%= u.is_active ? 'Active' : 'Deactivated' %></span></td>
+              <td class="nowrap"><%= u.last_login_at ? timeAgo(u.last_login_at) : 'Never' %></td>
+              <td><a class="btn small secondary" href="/system/users/<%= u.id %>">Manage</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/foot') %>

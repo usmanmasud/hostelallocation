@@ -163,6 +163,21 @@ Settings that change during a session (escalation days, Dean details, fee, alloc
 
 ---
 
+## Deploying to Render
+
+The repository includes a Render Blueprint ([render.yaml](render.yaml)).
+
+1. In the Render dashboard choose **New → Blueprint** and select this GitHub repository.
+2. When prompted, enter a strong `BOOTSTRAP_ADMIN_PASSWORD`. `SESSION_SECRET` is generated automatically.
+3. Click **Apply**. Render installs dependencies, starts the app and checks `/healthz`.
+4. Sign in at the `.onrender.com` URL as `admin@hostel.local` with the password from step 2. Then create a Hostel Administrator account and add rooms.
+
+**Data persistence:** the free plan has no persistent disk, so the SQLite database is reset on every deploy and restart. Free services also restart after about 15 minutes without traffic. This is fine for a demonstration. To keep data, switch to a paid plan and enable the disk block that is commented out in `render.yaml` (mounted at `/var/data`, with `DATABASE_PATH=/var/data/hostel.db`).
+
+Do not run `npm run seed` on a public deployment. Its demo passwords are listed in this README.
+
+---
+
 ## Scope and limitations
 
 These follow section 1.4 of the report:

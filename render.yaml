@@ -1,0 +1,29 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> select this repository.
+services:
+  - type: web
+    name: smart-hostel
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: APP_TIMEZONE
+        value: Africa/Lagos
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        value: admin@hostel.local
+      # Entered in the Render dashboard when the blueprint is created; never committed.
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+    # The free plan has no persistent disk: the SQLite database is reset on every
+    # restart or deploy. To keep data, switch to a paid plan and uncomment:
+    # plan: starter
+    # disk:
+    #   name: hostel-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
+    # and add an env var DATABASE_PATH=/var/data/hostel.db

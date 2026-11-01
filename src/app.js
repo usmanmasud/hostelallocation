@@ -35,6 +35,8 @@ export function createApp() {
   });
 
   app.use(helmet({ contentSecurityPolicy: { directives: { 'upgrade-insecure-requests': config.isProduction ? [] : null } } }));
+  // Health check for the hosting platform; registered before sessions so probes create none.
+  app.get('/healthz', (req, res) => res.type('text').send('ok'));
   app.use('/static', express.static(path.join(ROOT_DIR, 'public'), { maxAge: config.isProduction ? '7d' : 0 }));
   app.use(express.urlencoded({ extended: false, limit: '100kb' }));
   app.use(
